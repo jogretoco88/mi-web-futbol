@@ -1,37 +1,29 @@
-import requests
-import json
-import os
-from datetime import datetime
-
-# Configuramos la fecha de hoy automáticamente
-hoy = datetime.now().strftime('%Y-%m-%d')
-api_key = os.environ.get('API_FOOTBALL_KEY')
-
-url = "https://api-football-v1.p.rapidapi.com/v3/fixtures"
-
-querystring = {
-    "date": hoy,
-    "league": "39", # Premier League (puedes cambiar este ID después)
-    "season": "2025"
-}
-
-headers = {
-    "x-rapidapi-key": api_key,
-    "x-rapidapi-host": "api-football-v1.p.rapidapi.com"
-}
-
-try:
-    response = requests.get(url, headers=headers, params=querystring)
-    response.raise_for_status() # Lanza error si el código no es 200
-    
-    data = response.json()
-    
-    # Guardamos el archivo data.json
-    with open('data.json', 'w') as f:
-        json.dump(data, f, indent=4)
+fetch('data.json')
+    .then(response => response.json())
+    .then(data => {
+        const contenedor = document.getElementById('resultados');
+        contenedor.innerHTML = '<h2>Partidos de hoy</h2>';
         
-    print("Éxito: Datos guardados en data.json")
-    print(f"Status Code: {response.status_code}")
+        if (data.response && data.response.length > 0) {
+            data.response.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'partido-card';
+                
+                // Determinamos el estado del partido
+                let estado = p.fixture.status.short; // FT, LIVE, NS
+                let marcador = `${p.goals.home || 0} - ${p.goals.away || 0}`;
+                if (estado === 'NS') marcador = 'vs';
 
-except Exception as e:
-    print(f"Error al conectar con la API: {e}")
+                div.innerHTML = `
+                    <div class="liga">${p.league.name}</div>
+                    <div class="equipos">
+                        ${p.teams.home.name} <strong>${marcador}</strong> ${p.teams.away.name}
+                    </div>
+                    <div class="estado">Estado: ${p.fixture.status.long}</div>
+                `;
+                contenedor.appendChild(div);
+            });
+        } else {
+            contenedor.innerHTML = '<p>No hay partidos registrados para hoy.</p>';
+        }
+    });
