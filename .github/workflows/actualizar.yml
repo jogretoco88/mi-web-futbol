@@ -28,4 +28,7 @@ jobs:
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
           git add data.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Actualizacion automatica de resultados" && git push)
+          # Intentamos hacer pull por si hubo cambios, luego commit y push
+          git pull --rebase origin main || echo "No hay cambios para hacer pull"
+          git commit -m "Actualizacion automatica de resultados" || exit 0
+          git push origin main
