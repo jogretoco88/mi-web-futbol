@@ -3,17 +3,21 @@ import json
 import os
 from datetime import datetime
 
-# Obtenemos la fecha de hoy automáticamente
-hoy = datetime.now().strftime('%Y-%m-%d')
-api_key = os.environ.get('API_FOOTBALL_KEY')
+# URL correcta para la V3 basada en la documentación que abriste
+url = "https://apiv3.apifootball.com/"
 
-# La URL ahora usa la variable 'hoy'
-url = f"https://api-football-v1.p.rapidapi.com/v3/fixtures?date={hoy}"
-
-headers = {
-    'x-rapidapi-key': api_key,
-    'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
+# Aquí combinamos todo en 'params' según lo que pide esa página
+params = {
+    "action": "get_events",       # 'get_events' es para resultados/partidos
+    "from": datetime.now().strftime('%Y-%m-%d'),
+    "to": datetime.now().strftime('%Y-%m-%d'),
+    "APIkey": os.environ.get('API_FOOTBALL_KEY')
 }
 
-response = requests.get(url, headers=headers)
-# ... el resto de tu código para guardar en data.json
+response = requests.get(url, params=params)
+print(f"Status Code: {response.status_code}")
+print(f"Respuesta: {response.text}")
+
+if response.status_code == 200:
+    with open('data.json', 'w') as f:
+        json.dump(response.json(), f, indent=4)
