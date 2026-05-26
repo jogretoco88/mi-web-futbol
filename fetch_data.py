@@ -3,21 +3,35 @@ import json
 import os
 from datetime import datetime
 
-# URL correcta para la V3 basada en la documentación que abriste
-url = "https://apiv3.apifootball.com/"
+# Configuramos la fecha de hoy automáticamente
+hoy = datetime.now().strftime('%Y-%m-%d')
+api_key = os.environ.get('API_FOOTBALL_KEY')
 
-# Aquí combinamos todo en 'params' según lo que pide esa página
-params = {
-    "action": "get_events",       # 'get_events' es para resultados/partidos
-    "from": datetime.now().strftime('%Y-%m-%d'),
-    "to": datetime.now().strftime('%Y-%m-%d'),
-    "APIkey": os.environ.get('API_FOOTBALL_KEY')
+url = "https://api-football-v1.p.rapidapi.com/v3/fixtures"
+
+querystring = {
+    "date": hoy,
+    "league": "39", # Premier League (puedes cambiar este ID después)
+    "season": "2025"
 }
 
-response = requests.get(url, params=params)
-print(f"Status Code: {response.status_code}")
-print(f"Respuesta: {response.text}")
+headers = {
+    "x-rapidapi-key": api_key,
+    "x-rapidapi-host": "api-football-v1.p.rapidapi.com"
+}
 
-if response.status_code == 200:
+try:
+    response = requests.get(url, headers=headers, params=querystring)
+    response.raise_for_status() # Lanza error si el código no es 200
+    
+    data = response.json()
+    
+    # Guardamos el archivo data.json
     with open('data.json', 'w') as f:
-        json.dump(response.json(), f, indent=4)
+        json.dump(data, f, indent=4)
+        
+    print("Éxito: Datos guardados en data.json")
+    print(f"Status Code: {response.status_code}")
+
+except Exception as e:
+    print(f"Error al conectar con la API: {e}")
