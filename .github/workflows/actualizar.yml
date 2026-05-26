@@ -1,11 +1,12 @@
 name: Actualizar datos de futbol
+
 on:
   schedule:
-    - cron: '*/30 * * * *'
-  workflow_dispatch:
+    - cron: '*/30 * * * *' # Cada 30 min
+  workflow_dispatch: # Permite ejecutar manual
 
 permissions:
-  contents: write
+  contents: write # IMPORTANTE: Permiso de escritura
 
 jobs:
   build:
@@ -13,22 +14,26 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-      - name: Install requests
-        run: pip install requests
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
       - name: Fetch data
         env:
           API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
         run: python fetch_data.py
-      - name: Commit data
+
+      - name: Commit and push changes
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
           git add data.json
-          # Intentamos hacer pull por si hubo cambios, luego commit y push
-          git pull --rebase origin main || echo "No hay cambios para hacer pull"
-          git commit -m "Actualizacion automatica de resultados" || exit 0
-          git push origin main
+          # Si hay cambios, guardamos y subimos
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Actualizacion automatica de resultados" && git push)
