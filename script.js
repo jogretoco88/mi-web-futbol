@@ -2,24 +2,20 @@ fetch('data.json')
     .then(response => response.json())
     .then(data => {
         const contenedor = document.getElementById('resultados');
-        contenedor.innerHTML = ''; // Limpiamos errores previos
+        contenedor.innerHTML = '<h2>Partidos de hoy</h2>';
         
-        // Verificamos si hay partidos en la lista
         if (data.response && data.response.length > 0) {
-            data.response.forEach(partido => {
+            data.response.forEach(p => {
                 const div = document.createElement('div');
                 div.className = 'partido-card';
                 div.innerHTML = `
-                    <span class="equipo">${partido.teams.home.name}</span>
-                    <span class="marcador">${partido.goals.home} - ${partido.goals.away}</span>
-                    <span class="equipo">${partido.teams.away.name}</span>
+                    <p>${p.league.name}</p>
+                    <strong>${p.teams.home.name} ${p.goals.home || 0} - ${p.goals.away || 0} ${p.teams.away.name}</strong>
+                    <small>Estado: ${p.fixture.status.short}</small>
                 `;
                 contenedor.appendChild(div);
             });
         } else {
-            contenedor.innerHTML = '<p>No hay partidos en vivo en este momento.</p>';
+            contenedor.innerHTML = '<p>No hay partidos programados para hoy.</p>';
         }
-    })
-    .catch(error => {
-        console.error("Error al cargar datos:", error);
     });
