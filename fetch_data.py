@@ -2,24 +2,29 @@ import requests
 import json
 import os
 
+# Obtenemos la clave desde los secretos
 api_key = os.environ.get('API_FOOTBALL_KEY')
 
-# Usaremos este endpoint y headers estándar
-url = "https://v3.football.api-sports.io/fixtures?live=all"
+# Usaremos la URL de RapidAPI (más estable para automatizaciones)
+url = "https://api-football-v1.p.rapidapi.com/v3/status" # Usamos /status para verificar conexión primero
+
 headers = {
-    'x-apisports-key': api_key
+    'x-rapidapi-key': api_key,
+    'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
 }
 
 try:
     response = requests.get(url, headers=headers)
     print(f"Status Code: {response.status_code}")
+    print(f"Response: {response.text}")
     
     if response.status_code == 200:
-        data = response.json()
+        # Si funciona, guardamos el resultado
         with open('data.json', 'w') as f:
-            json.dump(data, f, indent=4)
-        print("Datos guardados con éxito.")
+            json.dump(response.json(), f, indent=4)
     else:
-        print(f"Error en la respuesta: {response.text}")
+        # Si falla, guardamos el error para verlo en la web
+        with open('data.json', 'w') as f:
+            json.dump({"error": "Fallo en conexión", "code": response.status_code, "msg": response.text}, f, indent=4)
 except Exception as e:
-    print(f"Error de conexión: {e}")
+    print(f"Error crítico: {e}")
