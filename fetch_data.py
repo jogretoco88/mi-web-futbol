@@ -5,8 +5,8 @@ import os
 # Obtenemos la clave desde los secretos
 api_key = os.environ.get('API_FOOTBALL_KEY')
 
-# Usaremos la URL de RapidAPI (más estable para automatizaciones)
-url = "https://api-football-v1.p.rapidapi.com/v3/status" # Usamos /status para verificar conexión primero
+# Cambiamos live=all por la fecha de hoy
+url = "https://api-football-v1.p.rapidapi.com/v3/fixtures?date=2026-05-25"
 
 headers = {
     'x-rapidapi-key': api_key,
