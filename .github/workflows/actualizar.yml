@@ -36,5 +36,4 @@ jobs:
           git config --global user.email 'github-actions@github.com'
           git add data.json
           git commit -m "Actualización automática de resultados" || echo "No hay cambios para commitear"
-          git pull --rebase origin main
-          git push origin main
+          git push -f origin main
